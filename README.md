@@ -1,5 +1,7 @@
 # Curated Events
 
+Created by Nicolas Nee
+
 Personalized event discovery and Google Calendar sync pipeline tailored to the provided interest profile (soccer-first, selected gaming/anime, Manhattan culture, and marquee sports moments). The current live workflow generates reviewed monthly reports, imports them into a local database, and syncs a dedicated Google Calendar named **Curated Events**.
 
 ## Quickstart
