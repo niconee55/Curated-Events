@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "curated-events"
+version = "0.1.0"
+description = "Personalized event discovery and Google Calendar sync pipeline."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "APScheduler>=3.10.4",
+  "beautifulsoup4>=4.12.3",
+  "httpx>=0.27.0",
+  "python-dateutil>=2.9.0",
+  "python-dotenv>=1.0.1",
+  "pydantic>=2.8.2",
+  "SQLAlchemy>=2.0.31",
+  "psycopg[binary]>=3.2.1",
+  "google-api-python-client>=2.141.0",
+  "google-auth>=2.33.0",
+  "google-auth-oauthlib>=1.2.1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3.2",
+]
+
+[project.scripts]
+curated-events = "curated_events.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+addopts = "-q"
