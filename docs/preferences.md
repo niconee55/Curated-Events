@@ -14,8 +14,6 @@ Use this file as the single source of truth for live event research.
 - France national team tournaments
 - PSG in major Champions League matches
 - World Cup, Euros, and other major international tournaments
-- For the men's World Cup, include every scheduled match that falls inside the target month once the match schedule is known.
-- World Cup matches are additive: include the full World Cup slate first, then still include the other soccer, music, culture, gaming, and release items that would normally clear the bar.
 - Premier League is the one domestic league that matters here
 - In the Premier League, include big-club matchups, title-race games, top-four pressure matches, and major relegation battles
 - In the Premier League, it is good to surface more of the meaningful slate, not just a tiny handful of marquee fixtures
@@ -24,7 +22,6 @@ Use this file as the single source of truth for live event research.
 - For late-stage major tournaments, include essentially all strong matches in the window, not just one representative reminder
 - In big late-stage tournaments, include the real matches themselves even when they are not directly tied to Real Madrid or PSG, because the tournament stage itself matters
 - In huge global events like the World Cup, Euros, and the latter Champions League rounds, the calendar should be packed with the actual major matches
-- For World Cup months, do not treat a full match slate as crowding out other good recommendations. The World Cup games are a baseline layer, not a substitute for the rest of the monthly search.
 - For Champions League specifically, include the quarterfinal legs, semifinal legs, and final-related marquee matches when their dates are known, even if exact participants are not fully locked yet
 - More generally, late-stage soccer events from adjacent competitions should get a looser inclusion bar when they are semifinals, finals, trophy matches, or other obvious one-off stakes events.
 - If a soccer event is a final, semifinal, or other high-signal knockout endpoint with real trophy or qualification consequences, it can clear the bar even outside the user's core club and tournament priorities.

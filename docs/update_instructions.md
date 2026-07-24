@@ -10,7 +10,6 @@ Use live web search plus the provided current-calendar context to refresh the mo
 
 ## Update Priorities
 - Replace bracket or placeholder soccer entries with the real matchup as soon as the official pairing and date are known.
-- For men's World Cup months, keep every scheduled World Cup match in the requested month once the official schedule is known.
 - Refresh soccer descriptions with more immediate stakes when reliable sources support it, including standings, points gaps, qualification pressure, relegation pressure, or knockout consequences.
 - Keep all major late-stage tournament games in scope even if some of them were only placeholders in the seed run.
 - Add newly relevant EPL matches if the table picture has become clearer and the match now meaningfully affects the title race, European places, or relegation battle.
@@ -28,7 +27,6 @@ Use live web search plus the provided current-calendar context to refresh the mo
 
 ## Context Rules
 - For soccer, prefer sharper context than the seed run when possible.
-- Treat World Cup matches as a full additive slate during World Cup months; do not remove other strong non-World-Cup items merely because the World Cup section is large.
 - If a match is now close enough that standings are concrete, say why the result matters using real table context rather than generic hype.
 - For placeholder tournament games that are still unresolved, keep them in the main list when the official date window is still important.
 - For releases or flexible items, keep them all-day rather than inventing times.

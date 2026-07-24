@@ -24,9 +24,6 @@ Use live web search to find upcoming events that match the user preferences.
 - When late-stage tournament dates are known, prefer the actual matches over generic reminders that the tournament is ongoing.
 - For late-stage Champions League, World Cup, Euros, and similar top-tier tournaments, include all strong matches in the requested window that fit the preference profile rather than just a subset.
 - For late-stage Champions League, World Cup, Euros, and similar top-tier tournaments, bias toward inclusion rather than pruning once the matches are clearly real and meaningful.
-- For men's World Cup months, switch from selective inclusion to exhaustive inclusion: if the official schedule has World Cup matches inside the requested month, include every one of those matches in the report.
-- Treat the World Cup slate as additive. Do not drop music releases, Manhattan culture, gaming/media items, or non-World-Cup soccer matches that would normally clear the bar just because the World Cup list is large.
-- Use the official FIFA schedule or another primary tournament source for World Cup dates, opponents, venues, and kickoff times whenever possible.
 - For late-stage Champions League quarter-finals specifically, include every actual tie and every actual leg that falls in the requested window.
 - For late-stage major tournaments, the tournament stage itself can justify inclusion even when the exact teams are not the user's favorite clubs.
 - For Champions League semifinal or final slots that are already calendared in the requested month, include them when the bracket context clearly makes them important, even if the exact matchup is still pending.
@@ -77,7 +74,6 @@ Use live web search to find upcoming events that match the user preferences.
 - In the seed workflow, that threshold should be interpreted broadly enough to capture “this is happening and I would likely be glad it is on my calendar,” even if the item will need richer context from the update workflow later.
 - When the month has many strong fits, especially during major tournaments, allow the high-confidence section to fill up toward the configured limit.
 - When the month has many clearly relevant soccer or release items, reduce over-pruning and allow more of them into the report.
-- If the configured limit would conflict with including every World Cup match, prioritize the exhaustive World Cup rule and note that the tournament slate required exceeding the normal practical size of the report.
 - For soccer specifically, this run should be more permissive than previous versions. Missing a genuinely meaningful match is worse than including a borderline-but-real big game.
 - Apply that same permissive logic to adjacent high-profile soccer endpoints: if a match is a real semifinal, final, or trophy-deciding event with broad watch value, prefer keeping it.
 - In dense soccer months, widen the high-confidence section first before pushing good soccer items down into lower-priority.

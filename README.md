@@ -20,6 +20,46 @@ Personalized event discovery and Google Calendar sync pipeline tailored to the p
    curated-events db init
    ```
 
+## Create Your Preference Files
+Before the first monthly run, ask a model to follow
+[docs/preferences_guide.md](docs/preferences_guide.md):
+
+```text
+Follow docs/preferences_guide.md. Interview me, create my preferences.md,
+update research_instructions.md, and fine-tune both with a completed dry run.
+```
+
+The model-driven setup process is:
+
+1. The model interviews you about interests, location, priorities, exclusions,
+   discovery tolerance, and desired calendar density.
+2. It creates or revises [docs/preferences.md](docs/preferences.md).
+3. Once you confirm the preference model, it updates
+   [docs/research_instructions.md](docs/research_instructions.md) so the research
+   workflow can find and select those events reliably.
+4. It runs a real monthly dry run:
+   ```bash
+   python3 scripts/codex_event_research.py create \
+     --month YYYY-MM \
+     --report preview_suggestions_dryrun.txt \
+     --session-file .codex_event_session_dryrun.json
+   ```
+5. You review `preview_suggestions_dryrun.txt` and explain what was right,
+   unwanted, or missing. The model updates the two source files and reruns the
+   dry test when needed.
+
+Do not sync the dry-run report to Google Calendar. The setup is complete when
+you are satisfied with the real event results, not merely when the markdown
+files exist.
+
+Other prompt files normally do not require personalization:
+
+- [docs/output_format.md](docs/output_format.md) defines report syntax.
+- [docs/update_instructions.md](docs/update_instructions.md) defines later
+  monthly refresh behavior.
+- [docs/handoff_instructions.md](docs/handoff_instructions.md) defines notes
+  passed from seed research to the updater.
+
 ## Recommended Calendar Workflow
 The current production workflow is report-driven:
 1. run the seed research agent
