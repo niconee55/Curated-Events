@@ -20,6 +20,149 @@ Personalized event discovery and Google Calendar sync pipeline tailored to the p
    curated-events db init
    ```
 
+## Google Calendar and OAuth Setup
+
+The application uses a local OAuth desktop flow. It does not create a Google
+Calendar automatically, and `GOOGLE_CALENDAR_NAME` is only a display name. You
+must create a calendar, configure a Google Cloud OAuth client, and put the
+calendar's ID in `.env`.
+
+### 1. Create a Google Cloud project and enable the API
+
+1. Open the [Google Cloud Console](https://console.cloud.google.com/) and create
+   or select a project.
+2. Open **APIs & Services > Library**.
+3. Search for **Google Calendar API**, open it, and click **Enable**.
+
+Google's
+[Calendar API Python quickstart](https://developers.google.com/workspace/calendar/api/quickstart/python)
+documents the same project and API setup.
+
+### 2. Configure the OAuth consent screen
+
+1. In the Cloud Console, open **Google Auth Platform > Branding** and click
+   **Get Started** if the project is not configured.
+2. Enter an app name such as `Curated Events`, a support email, and a developer
+   contact email.
+3. Choose the audience:
+   - For a personal Gmail account, choose **External**.
+   - For a Google Workspace project used only inside its organization, choose
+     **Internal**.
+4. If the audience is **External** and the app is in **Testing**, open
+   **Audience > Test users** and add the Google account that owns the calendar.
+5. Open **Data Access > Add or Remove Scopes** and add:
+   ```text
+   https://www.googleapis.com/auth/calendar.events
+   ```
+
+This is the only Google scope requested by the application. It permits the app
+to view, create, edit, and delete events on calendars accessible to the
+authorized Google account. The application itself sends Calendar API operations
+only to `GOOGLE_CALENDAR_ID`, and report rollback deletes only events recorded
+in its snapshot. The scope does not permit the app to create calendars, which
+is why the dedicated calendar is created manually. See Google's
+[Calendar scope reference](https://developers.google.com/workspace/calendar/api/auth)
+and [OAuth consent guide](https://developers.google.com/workspace/guides/configure-oauth-consent).
+
+An External app left in **Testing** issues refresh tokens that expire after
+seven days for Calendar access. That is acceptable for initial setup, but it
+means rerunning `curated-events google-auth` regularly. For longer-lived
+personal use, change the app's publishing status to **In production**. Google
+may display an unverified-app warning, and broader public distribution may
+require OAuth verification. Google documents these behaviors in
+[Manage App Audience](https://support.google.com/cloud/answer/15549945).
+
+### 3. Create desktop OAuth credentials
+
+1. Open **Google Auth Platform > Clients**.
+2. Click **Create Client**.
+3. Choose **Desktop app**, give it a recognizable name, and click **Create**.
+4. Download the client JSON file.
+5. Save it in the repository root as:
+   ```text
+   google-credentials.json
+   ```
+
+Do not commit this file. It contains the OAuth client secret and is already
+covered by `.gitignore`.
+
+### 4. Create the dedicated Google Calendar
+
+Google only allows new calendars to be created from a browser:
+
+1. Open [Google Calendar](https://calendar.google.com/).
+2. Next to **Other calendars**, click **+ > Create new calendar**.
+3. Name it `Curated Events` and click **Create calendar**.
+4. Under **My calendars**, open that calendar's **Settings and sharing**.
+5. Open **Integrate calendar** and copy the **Calendar ID**.
+
+The calendar can remain private. Do not copy the Secret address in iCal format;
+the application needs the Calendar ID. See Google's
+[calendar creation instructions](https://support.google.com/calendar/answer/37095)
+and [Calendar ID instructions](https://support.google.com/calendar/answer/44105).
+
+### 5. Configure `.env`
+
+Create the local environment file:
+
+```bash
+cp .env.example .env
+```
+
+Set these values:
+
+```dotenv
+TIMEZONE=America/New_York
+GOOGLE_CREDENTIALS_FILE=./google-credentials.json
+GOOGLE_TOKEN_FILE=./token.json
+GOOGLE_CALENDAR_ID=your-copied-calendar-id
+GOOGLE_CALENDAR_NAME=Curated Events
+```
+
+`GOOGLE_CALENDAR_ID` controls the actual write target. Do not use `primary`
+unless you intentionally want curated events written to your primary calendar.
+The authorized Google account must own the configured calendar or have
+permission to edit its events.
+
+Both `.env` and `token.json` are local secrets covered by `.gitignore`.
+
+### 6. Authorize the application
+
+From the repository with its virtual environment active, run:
+
+```bash
+curated-events google-auth
+```
+
+A browser window opens. Sign in with the same Google account that owns or can
+edit the configured calendar, review the Calendar event permission, and approve
+it. A successful run prints:
+
+```text
+google auth: token saved to token.json
+```
+
+The generated token is reused on later runs. If authorization fails with
+`invalid_grant`, remove only the configured token file and authorize again:
+
+```bash
+rm -f ./token.json
+curated-events google-auth
+```
+
+Common setup failures:
+
+- `access_denied`: add the account under **Audience > Test users**, or ask the
+  Google Workspace administrator to allow the app.
+- `GOOGLE_CREDENTIALS_FILE is not configured`: confirm `.env` exists in the
+  repository root and contains the credentials path.
+- `Google credentials file not found`: confirm the downloaded desktop-client
+  JSON filename matches `GOOGLE_CREDENTIALS_FILE`.
+- `Google Calendar backend is not active`: confirm the credentials file,
+  `token.json`, and `GOOGLE_CALENDAR_ID` are all configured.
+- Calendar `404` or `403`: verify the Calendar ID and confirm that the account
+  used during authorization can edit that calendar.
+
 ## Create Your Preference Files
 Before the first monthly run, ask a model to follow
 [docs/preferences_guide.md](docs/preferences_guide.md):
