@@ -132,9 +132,27 @@ def test_build_scope_supports_no_limit():
     assert scope.limit is None
 
 
+def test_build_scope_supports_explicit_date_range():
+    scope = build_scope(start_date="2026-08-01", end_date="2026-11-30", limit=None)
+
+    assert scope.month_label == "2026-08-01_to_2026-11-30"
+    assert scope.month_start.isoformat() == "2026-08-01"
+    assert scope.month_end.isoformat() == "2026-11-30"
+    assert scope.limit is None
+
+
 def test_build_scope_rejects_bad_inputs():
     with pytest.raises(RuntimeError, match="YYYY-MM"):
         build_scope(month="2026/04", limit=30)
 
     with pytest.raises(RuntimeError, match="greater than 0"):
         build_scope(month="2026-04", limit=0)
+
+    with pytest.raises(RuntimeError, match="provided together"):
+        build_scope(start_date="2026-08-01")
+
+    with pytest.raises(RuntimeError, match="cannot be combined"):
+        build_scope(month="2026-08", start_date="2026-08-01", end_date="2026-11-30")
+
+    with pytest.raises(RuntimeError, match="on or after"):
+        build_scope(start_date="2026-11-30", end_date="2026-08-01")

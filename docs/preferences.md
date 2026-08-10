@@ -9,6 +9,10 @@ Use this file as the single source of truth for live event research.
 
 ## Core Interests
 - Soccer first
+- Temporary Fall 2026 exhaustive college-soccer coverage: include every published Oregon State men's soccer schedule entry and every Princeton men's soccer regular-season game.
+- For Oregon State, this means all 21 listed entries, including exhibition games and the Pac-12 semifinal and final placeholders even though Oregon State's participation is not guaranteed yet.
+- For Princeton, include exactly the 16 listed regular-season games and exclude the multi-day Ivy League Tournament listing.
+- This Fall 2026 college-soccer slate is additive to the user's normal preferences and should not lower the inclusion bar for unrelated college soccer teams.
 - Real Madrid priority
 - Champions League knockout matches, semifinals, finals, and other marquee late-stage matches
 - France national team tournaments

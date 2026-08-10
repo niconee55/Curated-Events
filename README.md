@@ -269,6 +269,12 @@ To seed a month with live web search through Codex:
 python3 scripts/codex_event_research.py create --month 2026-04 --report preview_suggestions.txt --session-file .codex_event_session_seed.json
 ```
 
+For a season or other custom date range, provide both boundary dates instead of
+`--month`:
+```bash
+python3 scripts/codex_event_research.py create --start-date 2026-08-01 --end-date 2026-11-30 --report preview_suggestions.txt --session-file .codex_event_session_seed.json
+```
+
 To continue the same session later:
 ```bash
 python3 scripts/codex_event_research.py resume --month 2026-04 --report preview_suggestions.txt --session-file .codex_event_session_seed.json

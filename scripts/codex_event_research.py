@@ -32,6 +32,8 @@ def main() -> int:
     create_parser.add_argument("--report", default=str(DEFAULT_REPORT_PATH))
     create_parser.add_argument("--session-file", default=str(DEFAULT_SESSION_PATH))
     create_parser.add_argument("--month", default=None, help="Target month in YYYY-MM format. Defaults to the current month.")
+    create_parser.add_argument("--start-date", default=None, help="Custom range start in YYYY-MM-DD format.")
+    create_parser.add_argument("--end-date", default=None, help="Custom range end in YYYY-MM-DD format.")
     create_parser.add_argument("--limit", type=int, default=None, help="Maximum number of high-confidence events to return. Omit for no cap.")
 
     resume_parser = subparsers.add_parser("resume", help="Resume the saved Codex event research session.")
@@ -42,6 +44,8 @@ def main() -> int:
     resume_parser.add_argument("--report", default=str(DEFAULT_REPORT_PATH))
     resume_parser.add_argument("--session-file", default=str(DEFAULT_SESSION_PATH))
     resume_parser.add_argument("--month", default=None, help="Target month in YYYY-MM format. Defaults to the current month.")
+    resume_parser.add_argument("--start-date", default=None, help="Custom range start in YYYY-MM-DD format.")
+    resume_parser.add_argument("--end-date", default=None, help="Custom range end in YYYY-MM-DD format.")
     resume_parser.add_argument("--limit", type=int, default=None, help="Maximum number of high-confidence events to keep. Omit for no cap.")
     resume_parser.add_argument("--prompt", default=None, help="Optional follow-up prompt override.")
 
@@ -56,7 +60,12 @@ def main() -> int:
         report_path=Path(args.report),
         session_path=Path(args.session_file),
     )
-    scope = build_scope(month=args.month, limit=args.limit)
+    scope = build_scope(
+        month=args.month,
+        start_date=args.start_date,
+        end_date=args.end_date,
+        limit=args.limit,
+    )
 
     if args.command == "create":
         run_create_session(paths, scope, workflow_name="monthly seed")

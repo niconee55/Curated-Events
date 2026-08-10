@@ -38,6 +38,8 @@ def main() -> int:
     create_parser.add_argument("--session-file", default=str(DEFAULT_UPDATE_SESSION_PATH))
     create_parser.add_argument("--calendar-context", default=str(DEFAULT_CALENDAR_CONTEXT_PATH))
     create_parser.add_argument("--month", default=None, help="Target month in YYYY-MM format. Defaults to the current month.")
+    create_parser.add_argument("--start-date", default=None, help="Custom range start in YYYY-MM-DD format.")
+    create_parser.add_argument("--end-date", default=None, help="Custom range end in YYYY-MM-DD format.")
     create_parser.add_argument("--limit", type=int, default=None, help="Maximum number of high-confidence events to return. Omit for no cap.")
 
     resume_parser = subparsers.add_parser("resume", help="Resume the saved Codex calendar update session.")
@@ -49,6 +51,8 @@ def main() -> int:
     resume_parser.add_argument("--session-file", default=str(DEFAULT_UPDATE_SESSION_PATH))
     resume_parser.add_argument("--calendar-context", default=str(DEFAULT_CALENDAR_CONTEXT_PATH))
     resume_parser.add_argument("--month", default=None, help="Target month in YYYY-MM format. Defaults to the current month.")
+    resume_parser.add_argument("--start-date", default=None, help="Custom range start in YYYY-MM-DD format.")
+    resume_parser.add_argument("--end-date", default=None, help="Custom range end in YYYY-MM-DD format.")
     resume_parser.add_argument("--limit", type=int, default=None, help="Maximum number of high-confidence events to keep. Omit for no cap.")
     resume_parser.add_argument("--prompt", default=None, help="Optional follow-up prompt override.")
 
@@ -63,7 +67,12 @@ def main() -> int:
         report_path=Path(args.report),
         session_path=Path(args.session_file),
     )
-    scope = build_scope(month=args.month, limit=args.limit)
+    scope = build_scope(
+        month=args.month,
+        start_date=args.start_date,
+        end_date=args.end_date,
+        limit=args.limit,
+    )
     settings = get_settings()
     calendar_context_path = repo_root / Path(args.calendar_context)
     calendar_context_text = export_calendar_month_context(

@@ -80,9 +80,36 @@ def load_markdown_file(path: Path, label: str) -> str:
     return text
 
 
-def build_scope(month: str | None = None, *, today: date | None = None, limit: int | None = 30) -> ResearchScope:
+def build_scope(
+    month: str | None = None,
+    *,
+    start_date: str | None = None,
+    end_date: str | None = None,
+    today: date | None = None,
+    limit: int | None = 30,
+) -> ResearchScope:
     if limit is not None and limit <= 0:
         raise RuntimeError("limit must be greater than 0")
+
+    if month and (start_date or end_date):
+        raise RuntimeError("month cannot be combined with start-date or end-date")
+    if bool(start_date) != bool(end_date):
+        raise RuntimeError("start-date and end-date must be provided together")
+
+    if start_date and end_date:
+        try:
+            range_start = date.fromisoformat(start_date)
+            range_end = date.fromisoformat(end_date)
+        except ValueError as exc:
+            raise RuntimeError("start-date and end-date must be in YYYY-MM-DD format") from exc
+        if range_end < range_start:
+            raise RuntimeError("end-date must be on or after start-date")
+        return ResearchScope(
+            month_label=f"{range_start.isoformat()}_to_{range_end.isoformat()}",
+            month_start=range_start,
+            month_end=range_end,
+            limit=limit,
+        )
 
     today = today or datetime.now().date()
     if month is None:
