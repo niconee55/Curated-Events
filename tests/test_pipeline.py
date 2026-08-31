@@ -170,6 +170,32 @@ def test_calendar_backend_uses_google_backend_when_token_present(monkeypatch, tm
     assert backend.credentials is sentinel.creds
 
 
+def test_google_backend_delete_ignores_already_deleted_event():
+    from googleapiclient.errors import HttpError
+
+    class Response:
+        status = 410
+        reason = "Gone"
+
+    class DeleteRequest:
+        def execute(self):
+            raise HttpError(Response(), b'{"error":{"message":"gone"}}')
+
+    class Events:
+        def delete(self, **kwargs):
+            return DeleteRequest()
+
+    class Service:
+        def events(self):
+            return Events()
+
+    backend = object.__new__(RealGoogleCalendarBackend)
+    backend.calendar_id = "calendar-id"
+    backend._get_service = lambda: Service()
+
+    backend.delete(event_id="already-deleted")
+
+
 def test_in_memory_backend_builds_all_day_payload_for_midnight_bounded_event():
     event = Event(
         internal_event_id="report:event",

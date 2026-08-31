@@ -14,10 +14,6 @@ Use live web search to find upcoming events that match the user preferences.
 
 ## Selection Rules
 - Favor confidence and fit, but in the seed workflow do not over-prune the month down to only a tiny handful of events.
-- For Fall 2026, perform an exhaustive official-schedule pass for Oregon State men's soccer and Princeton men's soccer. Treat every qualifying game as high-confidence regardless of the normal selectivity rules.
-- Use the official Oregon State Athletics schedule as the source of truth for all 21 Oregon State entries, including both exhibitions and the Pac-12 semifinal and final placeholders. Keep TBD times as date-only entries until official kickoff times are posted.
-- Use the official Princeton Athletics schedule as the source of truth for exactly 16 regular-season games. Exclude the Nov. 12-15 multi-day Ivy League Tournament listing.
-- Do not infer extra Princeton tournament games or replace Oregon State's Pac-12 placeholders with invented opponents. This exhaustive rule applies only to these two teams in Fall 2026 and is additive to all other normally qualifying events.
 - Exclude weak matches, tribute acts, stale announcements, generic fan pages, and low-effort roundups.
 - Exclude events that are only loosely connected to the stated preferences.
 - Do not include anime screenings, anime convention appearances, or one-off anime fan events unless they are truly major releases.

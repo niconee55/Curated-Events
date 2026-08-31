@@ -210,7 +210,7 @@ def import_report_events(
             session.flush()
 
         for report_event in parsed:
-            for expanded_event in _expand_recurring_report_event(report_event):
+            for expanded_event in _expand_report_event(report_event):
                 normalized_exact_time = _normalize_exact_time(expanded_event)
                 source_timezone = _resolve_event_timezone(
                     expanded_event.location,
@@ -490,6 +490,42 @@ def _build_event_description(report_event: ReportEvent) -> str:
     return "\n\n".join(part for part in parts if part)
 
 
+def _expand_report_event(report_event: ReportEvent) -> list[ReportEvent]:
+    expanded: list[ReportEvent] = []
+    for recurring_event in _expand_recurring_report_event(report_event):
+        expanded.extend(_expand_long_date_range(recurring_event))
+    return expanded
+
+
+def _expand_long_date_range(report_event: ReportEvent) -> list[ReportEvent]:
+    date_range = _parse_date_range(report_event.exact_date)
+    if date_range is None:
+        return [report_event]
+
+    start_date, end_date = date_range
+    if (end_date - start_date).days < 3:
+        return [report_event]
+
+    return [
+        _build_range_boundary_event(report_event, start_date, "Start"),
+        _build_range_boundary_event(report_event, end_date, "End"),
+    ]
+
+
+def _build_range_boundary_event(report_event: ReportEvent, boundary_date: date, label: str) -> ReportEvent:
+    return ReportEvent(
+        section=report_event.section,
+        title=f"{report_event.title} ({label})",
+        description=report_event.description,
+        exact_date=boundary_date.strftime("%B %d, %Y"),
+        exact_time="",
+        location=report_event.location,
+        price=report_event.price,
+        why=report_event.why,
+        source_link=report_event.source_link,
+    )
+
+
 def _expand_recurring_report_event(report_event: ReportEvent) -> list[ReportEvent]:
     match = re.match(
         r"^(Mondays|Tuesdays|Wednesdays|Thursdays|Fridays|Saturdays|Sundays)"
@@ -545,10 +581,9 @@ def _short_date_label(value: date) -> str:
 
 
 def _parse_event_dates(value: str, exact_time: str, *, timezone: ZoneInfo) -> tuple[datetime, datetime, bool]:
-    if " to " in value:
-        start_value, end_value = value.split(" to ", 1)
-        start_date = _parse_human_date(start_value)
-        end_date = _parse_human_date(end_value)
+    date_range = _parse_date_range(value)
+    if date_range is not None:
+        start_date, end_date = date_range
         start_dt = datetime.combine(start_date, time(hour=0), tzinfo=timezone)
         end_dt = datetime.combine(end_date, time(hour=0), tzinfo=timezone)
         end_dt = end_dt + timedelta(days=1)
@@ -569,6 +604,31 @@ def _parse_event_dates(value: str, exact_time: str, *, timezone: ZoneInfo) -> tu
     start_dt = datetime.combine(start_date, time(hour=0), tzinfo=timezone)
     end_dt = start_dt + timedelta(days=1)
     return start_dt, end_dt, True
+
+
+def _parse_date_range(value: str) -> tuple[date, date] | None:
+    cleaned = value.strip()
+    if " to " in cleaned:
+        start_value, end_value = cleaned.split(" to ", 1)
+        try:
+            return _parse_human_date(start_value), _parse_human_date(end_value)
+        except ValueError:
+            return None
+
+    compact_range = re.fullmatch(
+        r"([A-Za-z]+)\s+(\d{1,2})\s*[-–—]\s*(\d{1,2}),\s*(\d{4})",
+        cleaned,
+    )
+    if compact_range is None:
+        return None
+    month, start_day, end_day, year = compact_range.groups()
+    try:
+        return (
+            _parse_human_date(f"{month} {start_day}, {year}"),
+            _parse_human_date(f"{month} {end_day}, {year}"),
+        )
+    except ValueError:
+        return None
 
 
 def _normalize_exact_time(event: ParsedReportEvent) -> str:

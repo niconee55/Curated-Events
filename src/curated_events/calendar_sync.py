@@ -116,8 +116,14 @@ class RealGoogleCalendarBackend(CalendarBackend):
         return created.get("id")
 
     def delete(self, *, event_id: str) -> None:
+        from googleapiclient.errors import HttpError
+
         service = self._get_service()
-        service.events().delete(calendarId=self.calendar_id, eventId=event_id).execute()
+        try:
+            service.events().delete(calendarId=self.calendar_id, eventId=event_id).execute()
+        except HttpError as exc:
+            if exc.resp.status not in {404, 410}:
+                raise
 
     def _get_service(self):
         return self._build("calendar", "v3", credentials=self.credentials, cache_discovery=False)

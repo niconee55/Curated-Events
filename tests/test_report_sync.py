@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import timedelta
 import tempfile
 from pathlib import Path
 
@@ -201,6 +202,54 @@ def test_apply_report_handles_late_night_event_crossing_midnight(tmp_path: Path)
         assert event.start_dt.hour == 23
         assert event.end_dt.day == 12
         assert event.end_dt.hour == 1
+
+
+def test_apply_report_splits_ranges_longer_than_three_days_into_boundaries(tmp_path: Path):
+    url = _db_url()
+    init_db(database_url=url)
+    report = tmp_path / "preview_suggestions.txt"
+    report.write_text(
+        """# High-confidence events
+
+## Long Festival
+- One-sentence description: A week-long festival.
+- Exact date: September 11–17, 2026
+- Exact time: 10:30 AM–5:30 PM ET
+- Location: New York, NY
+- Why it matches the preferences: Strong culture fit.
+- Direct source link: https://example.com/long-festival
+
+## Short Festival
+- One-sentence description: A three-day festival.
+- Exact date: September 25, 2026 to September 27, 2026
+- Location: New York, NY
+- Why it matches the preferences: Strong culture fit.
+- Direct source link: https://example.com/short-festival
+""",
+        encoding="utf-8",
+    )
+
+    result = apply_report_to_calendar(
+        report,
+        database_url=url,
+        timezone_name="America/New_York",
+        scope="high-confidence",
+        calendar_backend=InMemoryCalendarBackend(),
+        calendar_id="calendar-id",
+        snapshot_path=tmp_path / "snapshot.json",
+    )
+
+    assert result.imported == 3
+    with session_scope(database_url=url) as session:
+        events = session.execute(select(Event).order_by(Event.start_dt)).scalars().all()
+        assert [event.title for event in events] == [
+            "Long Festival (Start)",
+            "Long Festival (End)",
+            "Short Festival",
+        ]
+        assert events[0].end_dt - events[0].start_dt == timedelta(days=1)
+        assert events[1].end_dt - events[1].start_dt == timedelta(days=1)
+        assert events[2].end_dt - events[2].start_dt == timedelta(days=3)
 
 
 def test_apply_report_imports_high_confidence_only_and_writes_snapshot(tmp_path: Path):
