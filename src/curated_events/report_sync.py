@@ -73,7 +73,10 @@ def parse_report_events(report_path: Path) -> list[ReportEvent]:
             current_fields = {}
             current_description_line = ""
             return
-        if not current_fields.get("Exact date"):
+        exact_date = current_fields.get("Exact date") or _normalize_date_window(
+            current_fields.get("Date window", "")
+        )
+        if not exact_date:
             current_title = None
             current_fields = {}
             current_description_line = ""
@@ -85,13 +88,16 @@ def parse_report_events(report_path: Path) -> list[ReportEvent]:
                 description=current_fields.get("One-sentence description", "")
                 or current_fields.get("Description", "")
                 or current_description_line,
-                exact_date=current_fields.get("Exact date", ""),
+                exact_date=exact_date,
                 exact_time=current_fields.get("Exact time", ""),
                 location=current_fields.get("Location", ""),
                 price=current_fields.get("Price", ""),
                 why=current_fields.get("Why it matches the preferences")
-                or current_fields.get("Why it is lower priority", ""),
-                source_link=current_fields.get("Direct source link", ""),
+                or current_fields.get("Why it matches")
+                or current_fields.get("Why it is lower priority")
+                or current_fields.get("Why lower priority", ""),
+                source_link=current_fields.get("Direct source link")
+                or current_fields.get("Source", ""),
             )
         )
         current_title = None
@@ -99,15 +105,16 @@ def parse_report_events(report_path: Path) -> list[ReportEvent]:
         current_description_line = ""
 
     for line in lines:
-        if line.startswith("# High-confidence events"):
+        heading = _markdown_heading_text(line)
+        if heading == "high-confidence events":
             flush()
             section = "high-confidence"
             continue
-        if line.startswith("# Lower-priority but useful events"):
+        if heading == "lower-priority but useful events":
             flush()
             section = "lower-priority"
             continue
-        if line.startswith("# Search gaps") or line.startswith("# Sources"):
+        if heading and (heading.startswith("search gaps") or heading == "sources"):
             flush()
             section = ""
             continue
@@ -139,6 +146,17 @@ def parse_report_events(report_path: Path) -> list[ReportEvent]:
 
     flush()
     return events
+
+
+def _markdown_heading_text(line: str) -> str | None:
+    match = re.match(r"^#{1,6}\s+(.+?)\s*$", line)
+    if match is None:
+        return None
+    return match.group(1).strip().lower()
+
+
+def _normalize_date_window(value: str) -> str:
+    return re.sub(r"\s+\([^)]*\)\s*$", "", value.strip())
 
 
 def _normalize_report_line(line: str) -> str:
@@ -608,6 +626,13 @@ def _parse_event_dates(value: str, exact_time: str, *, timezone: ZoneInfo) -> tu
 
 def _parse_date_range(value: str) -> tuple[date, date] | None:
     cleaned = value.strip()
+    iso_range = re.fullmatch(r"(\d{4}-\d{2}-\d{2})\s*[-–—]\s*(\d{4}-\d{2}-\d{2})", cleaned)
+    if iso_range is not None:
+        try:
+            return date.fromisoformat(iso_range.group(1)), date.fromisoformat(iso_range.group(2))
+        except ValueError:
+            return None
+
     if " to " in cleaned:
         start_value, end_value = cleaned.split(" to ", 1)
         try:

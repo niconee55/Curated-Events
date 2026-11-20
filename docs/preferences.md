@@ -9,7 +9,8 @@ Use this file as the single source of truth for live event research.
 
 ## Core Interests
 - Soccer first
-- Real Madrid priority
+- Include every officially scheduled Real Madrid men's first-team match in the requested window, including routine domestic fixtures, cup matches, European matches, and friendlies
+- Include Barcelona and Bayern Munich only for major domestic rivalries, Champions League matches against substantial opponents, knockout or trophy matches, and fixtures with clear title-deciding stakes
 - Champions League knockout matches, semifinals, finals, and other marquee late-stage matches
 - France national team tournaments
 - PSG in major Champions League matches
@@ -65,8 +66,9 @@ Use this file as the single source of truth for live event research.
 - It is acceptable to return fewer than the cap if there are not enough strong matches
 - Distinguish between in-person attendance events and watch/release events
 - If an event requires attendance or tickets, include price information when available
-- Do not surface routine domestic league games just because they involve Real Madrid or PSG
-- Domestic league fixtures should usually only be included when the opponent is major, the context is unusually important, or the match clearly carries title-race or knockout-level significance
+- Real Madrid is the exception to the normal domestic-league filter: include every officially scheduled men's first-team match
+- Do not surface routine domestic league games just because they involve PSG, Barcelona, or Bayern Munich
+- For clubs other than Real Madrid, domestic league fixtures should usually only be included when the opponent is major, the context is unusually important, or the match clearly carries title-race or knockout-level significance
 - For the Premier League specifically, the bar can be lower than for other domestic leagues because it is an explicitly followed competition
 - For the Premier League specifically, err toward inclusion when the fixture is meaningfully important to the title race, European places, relegation fight, derby context, or a major-club matchup
 - For the Premier League specifically, the threshold should be loose enough to keep a broader meaningful slate, including additional big-club matches and consequential run-in games that may not be the single biggest fixture of the month

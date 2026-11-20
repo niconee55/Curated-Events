@@ -71,6 +71,80 @@ def test_parse_report_events_reads_both_sections(tmp_path: Path):
     assert events[2].section == "lower-priority"
 
 
+def test_parse_report_events_accepts_agent_heading_fields_and_date_windows(tmp_path: Path):
+    report = tmp_path / "preview_suggestions.txt"
+    report.write_text(
+        """# December event report
+
+## High-confidence events
+
+### Copa del Rey round of 32 — Real Madrid slot
+
+Madrid's official cup-entry window.
+
+- Date window: 2026-12-15–2026-12-17 (official window; exact day pending)
+- Location: Spain; stadium pending the draw
+- Why it matches: Every Real Madrid match is required.
+- Source: https://example.com/madrid-cup
+
+## Lower-priority but useful events
+
+### Museum Night
+
+A flexible culture option.
+
+- Exact date: 2026-12-18
+- Location: New York, NY
+- Why lower priority: Secondary to soccer.
+- Source: https://example.com/museum
+
+## Search gaps or intentionally empty categories
+""",
+        encoding="utf-8",
+    )
+
+    events = parse_report_events(report)
+
+    assert len(events) == 2
+    assert events[0].exact_date == "2026-12-15–2026-12-17"
+    assert events[0].why == "Every Real Madrid match is required."
+    assert events[0].source_link == "https://example.com/madrid-cup"
+    assert events[1].section == "lower-priority"
+
+
+def test_apply_report_accepts_iso_date_window(tmp_path: Path):
+    url = _db_url()
+    init_db(database_url=url)
+    report = tmp_path / "preview_suggestions.txt"
+    report.write_text(
+        """## High-confidence events
+
+### Pending Cup Slot
+- Date window: 2026-12-15–2026-12-17 (official window; exact day pending)
+- Location: Spain
+- Why it matches: Knockout match.
+- Source: https://example.com/cup
+""",
+        encoding="utf-8",
+    )
+
+    result = apply_report_to_calendar(
+        report,
+        database_url=url,
+        timezone_name="America/New_York",
+        scope="high-confidence",
+        calendar_backend=InMemoryCalendarBackend(),
+        calendar_id="calendar-id",
+        snapshot_path=tmp_path / "snapshot.json",
+    )
+
+    assert result.imported == 1
+    with session_scope(database_url=url) as session:
+        event = session.execute(select(Event).where(Event.title == "Pending Cup Slot")).scalar_one()
+        assert event.start_dt.date().isoformat() == "2026-12-15"
+        assert event.end_dt.date().isoformat() == "2026-12-18"
+
+
 def test_parse_report_events_reads_dash_title_format(tmp_path: Path):
     report = tmp_path / "preview_suggestions.txt"
     report.write_text(
